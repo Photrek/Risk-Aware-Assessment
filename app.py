@@ -88,11 +88,15 @@ if uploaded_file is not None:
     # Displaying plot in streamlit
     st.pyplot(fig)
     
-    generalized_mean_dict = {
-        'Accuracy': accuracy_x,
-        'Decisiveness': decisiveness_x,
-        'Robustness': robustness_x
-        }
+    plt.savefig('hist.png')
+    
+    with open('hist.png', "rb") as img:
+        btn = st.download_button(
+            label="Download image",
+            data=img,
+            file_name='hist.png',
+            mime="image/png"
+        )
     
     
     
