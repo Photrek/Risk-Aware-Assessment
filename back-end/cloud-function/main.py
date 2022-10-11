@@ -150,18 +150,21 @@ def plot(data):
                 )
     
     # Adding labels
-    plt.xlabel('Probabilities in log scale', fontdict = {'fontsize' : 20, 'weight': 'normal'})
+    plt.xlabel('Probabilities', fontdict = {'fontsize' : 35, 'weight': 'normal'})
     
     plt.ylabel(
-        "Frequency in logscale", 
-        fontdict = {'fontsize' : 20, 'weight': 'normal'}
+        "Frequency", 
+        fontdict = {'fontsize' : 35, 'weight': 'normal'}
         )
     
     # Converting ticks to probability scale post-hoc
-    locs, labels = plt.xticks()
+    locs, labels = plt.xticks(fontsize=20)
     locs = locs[:-1] # Don't need last tick mark
     prob_x_ticks = [np.exp(loc) for loc in locs]
     plt.xticks(locs, [f'{prob:0.0e}' for prob in prob_x_ticks])
+
+    # setting yticks
+    plt.yticks(fontsize=20)
     
     # Save file locally
     plt.savefig('hist.png')
