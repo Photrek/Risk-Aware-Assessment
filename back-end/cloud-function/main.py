@@ -109,6 +109,13 @@ def robustness(x):
 def plot(data):
     """Calculates metrics and saves plot locally"""
 
+    # Need to handle 0s
+    if 0 in data:
+        second_smallest = np.unique(data)
+        floor_value = second_smallest[1] ** 2
+        data = np.where(data == 0, floor_value, data)
+
+
     # Calculating metrics
     decisiveness_res = decisiveness(data)
     accuracy_res = accuracy(data)
@@ -133,11 +140,11 @@ def plot(data):
     rob_txt = f'{robustness_res:0.2e}'
     
     # Adding the generalised mean values to the plot
-    plt.axvline(log_dec, color='r', linestyle='dashed', linewidth=2)
+    plt.axvline(log_dec, color='r', linestyle='dashed', linewidth=2, label='Decisiveness')
     plt.text(log_dec, 10*12, dec_txt, color='r', size='large', weight='bold')
-    plt.axvline(log_acc, color='b', linestyle='dashed', linewidth=2)
+    plt.axvline(log_acc, color='b', linestyle='dashed', linewidth=2, label='Accuracy')
     plt.text(log_acc, 10*12, acc_txt, color='b', size='large', weight='bold')
-    plt.axvline(log_rob, color='g', linestyle='dashed', linewidth=2)
+    plt.axvline(log_rob, color='g', linestyle='dashed', linewidth=2, label='Robustness')
     plt.text(log_rob, 10*12, rob_txt, color='g', size='large', weight='bold')
     
     # Plotting the histogram, inputs are log probabilities, frequencies are calculated on the log scale
@@ -165,6 +172,13 @@ def plot(data):
 
     # setting yticks
     plt.yticks(fontsize=20)
+    plt.legend(fontsize=20)
     
     # Save file locally
     plt.savefig('hist.png')
+
+## For local work
+# import os
+# os.chdir(os.path.dirname(os.path.abspath(__file__)))
+# data = np.genfromtxt('midterms.csv', delimiter=',')
+# plot(data)
