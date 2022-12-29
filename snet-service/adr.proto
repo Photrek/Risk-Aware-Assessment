@@ -1,0 +1,28 @@
+syntax = "proto3";
+
+package tutorial;
+
+message IntPair {
+    int32 a = 1;
+    int32 b = 2;
+}
+
+message SingleInt {
+    int32 v = 1;
+}
+
+message InputString {
+    string s = 1;
+}
+
+message ADRReturnFloat {
+    float a = 1;
+    float d = 2;
+    float r = 3;
+}
+
+service ServiceDefinition {
+    rpc adr(InputString) returns (ADRReturnFloat) {}
+    //rpc adr(InputString) returns (ReturnFloat) {}
+}
+
