@@ -5,8 +5,8 @@ import sys
 import grpc
 
 sys.path.append("./service_spec")
-import tutorial_pb2 as pb2
-import tutorial_pb2_grpc as pb2_grpc
+import adr_pb2 as pb2
+import adr_pb2_grpc as pb2_grpc
 
 
 # TEST_CODE

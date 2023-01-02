@@ -9,8 +9,8 @@ import grpc
 import numpy as np
 
 sys.path.append("./service_spec")
-import tutorial_pb2 as pb2
-import tutorial_pb2_grpc as pb2_grpc
+import adr_pb2 as pb2
+import adr_pb2_grpc as pb2_grpc
 
 def decisiveness(x):
     # Decisiveness = Arithmetic mean
