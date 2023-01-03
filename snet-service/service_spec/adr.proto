@@ -12,13 +12,16 @@ message SingleInt {
 }
 
 message InputString {
-    string s = 1;
+    string r = 1;
+    string p = 2;
+    string k = 3;
 }
 
 message ADRReturnFloat {
     float a = 1;
     float d = 2;
     float r = 3;
+    float g = 4;
 }
 
 service ServiceDefinition {

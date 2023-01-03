@@ -19,7 +19,7 @@ DESCRIPTOR = _descriptor.FileDescriptor(
   package='adr',
   syntax='proto3',
   serialized_options=None,
-  serialized_pb=_b('\n\tadr.proto\x12\x03\x61\x64r\"\x1f\n\x07IntPair\x12\t\n\x01\x61\x18\x01 \x01(\x05\x12\t\n\x01\x62\x18\x02 \x01(\x05\"\x16\n\tSingleInt\x12\t\n\x01v\x18\x01 \x01(\x05\"\x18\n\x0bInputString\x12\t\n\x01s\x18\x01 \x01(\t\"1\n\x0e\x41\x44RReturnFloat\x12\t\n\x01\x61\x18\x01 \x01(\x02\x12\t\n\x01\x64\x18\x02 \x01(\x02\x12\t\n\x01r\x18\x03 \x01(\x02\x32\x43\n\x11ServiceDefinition\x12.\n\x03\x61\x64r\x12\x10.adr.InputString\x1a\x13.adr.ADRReturnFloat\"\x00\x62\x06proto3')
+  serialized_pb=_b('\n\tadr.proto\x12\x03\x61\x64r\"\x1f\n\x07IntPair\x12\t\n\x01\x61\x18\x01 \x01(\x05\x12\t\n\x01\x62\x18\x02 \x01(\x05\"\x16\n\tSingleInt\x12\t\n\x01v\x18\x01 \x01(\x05\".\n\x0bInputString\x12\t\n\x01r\x18\x01 \x01(\t\x12\t\n\x01p\x18\x02 \x01(\t\x12\t\n\x01k\x18\x03 \x01(\t\"<\n\x0e\x41\x44RReturnFloat\x12\t\n\x01\x61\x18\x01 \x01(\x02\x12\t\n\x01\x64\x18\x02 \x01(\x02\x12\t\n\x01r\x18\x03 \x01(\x02\x12\t\n\x01g\x18\x04 \x01(\x02\x32\x43\n\x11ServiceDefinition\x12.\n\x03\x61\x64r\x12\x10.adr.InputString\x1a\x13.adr.ADRReturnFloat\"\x00\x62\x06proto3')
 )
 
 
@@ -102,8 +102,22 @@ _INPUTSTRING = _descriptor.Descriptor(
   containing_type=None,
   fields=[
     _descriptor.FieldDescriptor(
-      name='s', full_name='adr.InputString.s', index=0,
+      name='r', full_name='adr.InputString.r', index=0,
       number=1, type=9, cpp_type=9, label=1,
+      has_default_value=False, default_value=_b("").decode('utf-8'),
+      message_type=None, enum_type=None, containing_type=None,
+      is_extension=False, extension_scope=None,
+      serialized_options=None, file=DESCRIPTOR),
+    _descriptor.FieldDescriptor(
+      name='p', full_name='adr.InputString.p', index=1,
+      number=2, type=9, cpp_type=9, label=1,
+      has_default_value=False, default_value=_b("").decode('utf-8'),
+      message_type=None, enum_type=None, containing_type=None,
+      is_extension=False, extension_scope=None,
+      serialized_options=None, file=DESCRIPTOR),
+    _descriptor.FieldDescriptor(
+      name='k', full_name='adr.InputString.k', index=2,
+      number=3, type=9, cpp_type=9, label=1,
       has_default_value=False, default_value=_b("").decode('utf-8'),
       message_type=None, enum_type=None, containing_type=None,
       is_extension=False, extension_scope=None,
@@ -121,7 +135,7 @@ _INPUTSTRING = _descriptor.Descriptor(
   oneofs=[
   ],
   serialized_start=75,
-  serialized_end=99,
+  serialized_end=121,
 )
 
 
@@ -153,6 +167,13 @@ _ADRRETURNFLOAT = _descriptor.Descriptor(
       message_type=None, enum_type=None, containing_type=None,
       is_extension=False, extension_scope=None,
       serialized_options=None, file=DESCRIPTOR),
+    _descriptor.FieldDescriptor(
+      name='g', full_name='adr.ADRReturnFloat.g', index=3,
+      number=4, type=2, cpp_type=6, label=1,
+      has_default_value=False, default_value=float(0),
+      message_type=None, enum_type=None, containing_type=None,
+      is_extension=False, extension_scope=None,
+      serialized_options=None, file=DESCRIPTOR),
   ],
   extensions=[
   ],
@@ -165,8 +186,8 @@ _ADRRETURNFLOAT = _descriptor.Descriptor(
   extension_ranges=[],
   oneofs=[
   ],
-  serialized_start=101,
-  serialized_end=150,
+  serialized_start=123,
+  serialized_end=183,
 )
 
 DESCRIPTOR.message_types_by_name['IntPair'] = _INTPAIR
@@ -211,8 +232,8 @@ _SERVICEDEFINITION = _descriptor.ServiceDescriptor(
   file=DESCRIPTOR,
   index=0,
   serialized_options=None,
-  serialized_start=152,
-  serialized_end=219,
+  serialized_start=185,
+  serialized_end=252,
   methods=[
   _descriptor.MethodDescriptor(
     name='adr',
