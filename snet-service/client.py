@@ -13,12 +13,14 @@ import adr_pb2_grpc as pb2_grpc
 def doSomething(channel):
 
     # Read in input
-    s = sys.argv[1]
+    r = sys.argv[1]
+    p = sys.argv[2]
+    k = sys.argv[3]
 
     # Passing the input to the service
     stub = pb2_grpc.ServiceDefinitionStub(channel)
-    response = stub.adr(pb2.InputString(s=s))
-    print("Accuracy: {:.4f}, Decisiveness: {:.4f}, Robustness: {:.4f}".format(response.a, response.d, response.r))
+    response = stub.adr(pb2.InputString(r=r, p=p, k=k))
+    print("Accuracy: {:.4f}, Decisiveness: {:.4f}, Robustness: {:.4f}, Generalized Mean: {:.4f}".format(response.a, response.d, response.r, response.g))
     return response
 
 
