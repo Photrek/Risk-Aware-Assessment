@@ -1,6 +1,7 @@
 # tutorial
 # 7003
 
+import os
 import sys
 import grpc
 
@@ -9,27 +10,36 @@ import adr_pb2 as pb2
 import adr_pb2_grpc as pb2_grpc
 
 
-# TEST_CODE
-def doSomething(channel):
+def get_filepath(filename, extension):
+    return f'{filename}{extension}'
 
-    # Read in input
-    r = sys.argv[1]
-    p = sys.argv[2]
-    k = sys.argv[3]
+def read_iterfile(filepath, chunk_size=1024):
+    split_data = os.path.splitext(filepath)
+    filename = split_data[0]
+    extension = split_data[1]
 
-    # Passing the input to the service
-    stub = pb2_grpc.ServiceDefinitionStub(channel)
-    response = stub.adr(pb2.InputString(r=r, p=p, k=k))
-    print("Accuracy: {:.4f}, Decisiveness: {:.4f}, Robustness: {:.4f}, Generalized Mean: {:.4f}".format(response.a, response.d, response.r, response.g))
-    return response
+    metadata = pb2.MetaData(filename=filename, extension=extension)
+    yield pb2.UploadFileRequest(metadata=metadata)
+    with open(filepath, mode='rb') as f:
+        while True:
+            chunk = f.read(chunk_size)
+            if chunk:
+                entry_request = pb2.UploadFileRequest(chunk_data=chunk)
+                yield entry_request
+            else:
+                return
 
-
-def main():
-    # Connect to the server
+def run():
     with grpc.insecure_channel('localhost:7003') as channel:
-        # Call TEST_CODE
-        doSomething(channel)
+        stub = pb2_grpc.ServiceDefinitionStub(channel)
 
+        filename = sys.argv[1]
+        response = stub.ADR(read_iterfile(filename))
+        print(response.message)
 
+        for entry_response in stub.DownloadFile(pb2.MetaData(filename='hist', extension='.png')):
+            with open('hist.png', mode="ab") as f:
+                f.write(entry_response.chunk_data)
+    
 if __name__ == '__main__':
-    main()
+    run()

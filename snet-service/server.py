@@ -2,11 +2,14 @@
 # 7003
 
 import sys
+import os
 from concurrent import futures
 import time
 
 import grpc
 import numpy as np
+import pandas as pd
+import matplotlib.pyplot as plt
 
 sys.path.append("./service_spec")
 import adr_pb2 as pb2
@@ -34,69 +37,158 @@ def generalized_mean(x, r):
     result = np.sum((x**(r))/n) ** (1/r)
     return result
 
-def parse_probabilities(p):
-    """Converts string into array of probabilities."""
-    # Split class probabilities by ;
-    class_probs = p.split(';')
+def generalized_mean(x, r):
+    n = len(x)
+    result = np.sum((x**(r))/n) ** (1/r)
+    return 
 
-    # Split observation probabilities by ,. Result is a list of lists.
-    ll_probs = [probs.split(',') for probs in class_probs]
+def get_filepath(filename, extension):
+    return f'{filename}{extension}'
+
+def get_source_probs(data):
+    """"""
+    # Class index (last column)
+    # Subtract 1 to convert to zero index
+    true_event_index = data.iloc[:,-1].values - 1
+
+    # Take everything except last column
+    probs_array_ = data.iloc[:, :-1].values
+
+    # Normalize so it sums to 1
+    probs_array = probs_array_/np.expand_dims(np.sum(probs_array_,1),1)
+
+    # Applying mask to get probability of event that actually happened
+    source_probs = np.take_along_axis(probs_array, np.expand_dims(true_event_index,1), 1)
+
+    return source_probs
+
+def plot(data):
+    """Calculates metrics and saves plot locally"""
+
+    # Need to handle 0s
+    if 0 in data:
+        second_smallest = np.unique(data)
+        floor_value = second_smallest[1] ** 2
+        data = np.where(data == 0, floor_value, data)
+
+
+    # Calculating metrics
+    decisiveness_res = decisiveness(data)
+    accuracy_res = accuracy(data)
+    robustness_res = robustness(data)
+
+    print(f"Decisiveness of data: {decisiveness_res}")
+    print(f"Accuracy of data: {accuracy_res}")
+    print(f"Robustness of data: {robustness_res}")
+
+    # Creating plot
+    x_log_prob = np.log(data)
+
+    fig, ax = plt.subplots(figsize=(16, 12))
     
-    # All sub lists should be the same length
-    assert all(len(probs) == len(ll_probs[0]) for probs in ll_probs)
+    # Plot in logscale, so convert the metric as logs as well
+    log_dec = np.log(decisiveness_res)
+    log_acc = np.log(accuracy_res)
+    log_rob = np.log(robustness_res)
+    
+    dec_txt = f'{decisiveness_res:0.2e}'
+    acc_txt = f'{accuracy_res:0.2e}'
+    rob_txt = f'{robustness_res:0.2e}'
+    
+    # Adding the generalised mean values to the plot
+    plt.axvline(log_dec, color='r', linestyle='dashed', linewidth=2, label='Decisiveness')
+    plt.text(log_dec, 10*12, dec_txt, color='r', size='large', weight='bold')
+    plt.axvline(log_acc, color='b', linestyle='dashed', linewidth=2, label='Accuracy')
+    plt.text(log_acc, 10*12, acc_txt, color='b', size='large', weight='bold')
+    plt.axvline(log_rob, color='g', linestyle='dashed', linewidth=2, label='Robustness')
+    plt.text(log_rob, 10*12, rob_txt, color='g', size='large', weight='bold')
+    
+    # Plotting the histogram, inputs are log probabilities, frequencies are calculated on the log scale
+    plt.hist(
+                x_log_prob,
+                log=True, 
+                bins=100, 
+                facecolor='white', 
+                edgecolor='black'
+                )
+    
+    # Adding labels
+    plt.xlabel('Probabilities', fontdict = {'fontsize' : 35, 'weight': 'normal'})
+    
+    plt.ylabel(
+        "Frequency", 
+        fontdict = {'fontsize' : 35, 'weight': 'normal'}
+        )
+    
+    # Converting ticks to probability scale post-hoc
+    locs, labels = plt.xticks(fontsize=20)
+    locs = locs[:-1] # Don't need last tick mark
+    prob_x_ticks = [np.exp(loc) for loc in locs]
+    plt.xticks(locs, [f'{prob:0.0e}' for prob in prob_x_ticks])
 
-    probs_array = np.asarray(ll_probs, dtype=float)
+    # setting yticks
+    plt.yticks(fontsize=20)
+    plt.legend(fontsize=20)
+    
+    # Save file locally
+    plt.savefig('hist.png')
 
-    # Transposing from k x n to n x k
-    probs_array = np.transpose(probs_array)
-
-    # Normalizing so forecast probabilities for an observation sum to 1
-    probs_array = probs_array/np.expand_dims(np.sum(probs_array,1),1)
-
-    return probs_array
-
-# SERVICE_API
 class ServiceDefinition(pb2_grpc.ServiceDefinitionServicer):
+    
+    def UploadFile(self, request_iterator, context):
+        data = bytearray()
+        filepath = 'dummy'
 
-    def __init__(self):
-        self.accuracy = 0.0
-        self.decisiveness = 0.0
-        self.reobustness = 0.0
-        self.r = ''
-        self.p = ''
-        self.k = ''
-        self.response = None
-
-    def adr(self, request, context):
-        # Parsing input string
-        self.r = request.r
-        self.p = request.p
-        self.k = request.k
+        for request in request_iterator:
+            if request.metadata.filename and request.metadata.extension:
+                filepath = get_filepath(request.metadata.filename, request.metadata.extension)
+                continue
+            data.extend(request.chunk_data)
         
+        print(data)
+        with open(filepath, 'wb') as f:
+            f.write(data)
+        return pb2.StringResponse(message='Success!')
+    
+    def ADR(self, request_iterator, context):
 
-        probs_array = parse_probabilities(self.p)
-        self.k = np.asarray(self.k.split(','), dtype=int)
+        # Receive data from client
+        data = bytearray()
+        filepath = 'dummy'
 
-        assert len(probs_array) == len(self.k)
-
-        # Applying mask to get probability of event that actually happened
-        source_probs = np.take_along_axis(probs_array, np.expand_dims(self.k,1), 1)
-
-
-        # Calculating metrics
-        self.accuracy = accuracy(source_probs)
-        self.decisiveness = decisiveness(source_probs)
-        self.robustness = robustness(source_probs)
-        self.generalized_mean = generalized_mean(source_probs, float(self.r))
+        for request in request_iterator:
+            if request.metadata.filename and request.metadata.extension:
+                filepath = get_filepath(request.metadata.filename, request.metadata.extension)
+                continue
+            data.extend(request.chunk_data)
         
-        # Filling out response values
-        self.response = pb2.ADRReturnFloat()
-        self.response.a = self.accuracy
-        self.response.d = self.decisiveness
-        self.response.r = self.robustness
-        self.response.g = self.generalized_mean
+        # Write data to csv file locally
+        with open('data.csv', 'wb') as f:
+            f.write(data)
+        
+        # Read in local csv file and transform
+        data = pd.read_csv('data.csv')
+        source_probs = get_source_probs(data)
 
-        return self.response
+        # Generate plot locally
+        plot(source_probs)
+
+        message = f'Accuracy: {accuracy(source_probs):.4f}, Decisiveness: {decisiveness(source_probs):.4f}, Robustness: {robustness(source_probs):.4f}'
+        return pb2.StringResponse(message=message)
+        
+    def DownloadFile(self, request, context):
+        chunk_size=1024
+
+        filepath = f'{request.filename}{request.extension}'
+        if os.path.exists(filepath):
+            with open(filepath, mode='rb') as f:
+                while True:
+                    chunk = f.read(chunk_size)
+                    if chunk:
+                        entry_response = pb2.FileResponse(chunk_data=chunk)
+                        yield entry_response
+                    else:
+                        return
 
 
 def main():

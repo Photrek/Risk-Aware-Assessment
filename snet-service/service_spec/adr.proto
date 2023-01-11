@@ -2,30 +2,27 @@ syntax = "proto3";
 
 package adr;
 
-message IntPair {
-    int32 a = 1;
-    int32 b = 2;
-}
-
-message SingleInt {
-    int32 v = 1;
-}
-
-message InputString {
-    string r = 1;
-    string p = 2;
-    string k = 3;
-}
-
-message ADRReturnFloat {
-    float a = 1;
-    float d = 2;
-    float r = 3;
-    float g = 4;
-}
-
 service ServiceDefinition {
-    rpc adr(InputString) returns (ADRReturnFloat) {}
-    //rpc adr(InputString) returns (ReturnFloat) {}
+    rpc DownloadFile(MetaData) returns (stream FileResponse) {}
+    rpc ADR(stream UploadFileRequest) returns (StringResponse) {}
 }
 
+message StringResponse {
+    string message = 1;
+}
+
+message FileResponse {
+    bytes chunk_data = 1;
+}
+
+message MetaData {
+    string filename = 1;
+    string extension = 2;
+}
+
+message UploadFileRequest {
+    oneof request {
+        MetaData metadata = 1;
+        bytes chunk_data = 2;
+    }
+}
