@@ -129,9 +129,14 @@ def plot(data):
     # setting yticks
     plt.yticks(fontsize=20)
     plt.legend(fontsize=20)
-    
-    # Save file locally
-    plt.savefig('hist.png')
+
+    # Adding logo
+    im = plt.imread('photrek_logo.png')
+    newax = fig.add_axes([0.45, 0.75, 0.1, 0.1], anchor='NE', zorder=0)
+    newax.imshow(im)
+    newax.axis('off')
+    plt.show()
+    fig.savefig('plot.png', bbox_inches='tight')
 
 class ServiceDefinition(pb2_grpc.ServiceDefinitionServicer):
     
