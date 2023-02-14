@@ -1,4 +1,0 @@
-numpy==1.23.2
-functions-framework==3.2.0
-google-cloud-storage==2.5.0
-matplotlib==3.5.3

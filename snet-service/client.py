@@ -30,7 +30,7 @@ def read_iterfile(filepath, chunk_size=1024):
                 return
 
 def run():
-    with grpc.insecure_channel('localhost:7003') as channel:
+    with grpc.insecure_channel('104.154.63.152:7003') as channel:
         stub = pb2_grpc.ServiceDefinitionStub(channel)
 
         filename = sys.argv[1]
