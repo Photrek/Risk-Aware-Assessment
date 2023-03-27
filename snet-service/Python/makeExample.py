@@ -1,9 +1,8 @@
 import numpy as np
 
 filename = "data.csv"
-# NR = 39780
-NR = 40
-NC = 4 # number of columns (NOT including class), so effectively #classes
+NR = 1000
+NC = 4   # number of columns (NOT including class), so effectively #classes
 
 # CONVENTION: no header
 with open("data.csv","wt") as f:

@@ -60,7 +60,10 @@ export default class TestRiskAwareAssessment extends React.Component {
     const { methodIndex, methodNames } = this.state;
     //const methodDescriptor = Calculator[methodNames[methodIndex].content];
     const methodDescriptor = ServiceDefinition[methodNames[methodIndex].content];
+    console.log(this.state)
+    console.log(methodNames)
     const request = new methodDescriptor.requestType();
+    console.log(request)
     //request.setA(this.state.a);
     //request.setB(this.state.b);
 
